@@ -1,21 +1,19 @@
-# Copyright 2017 LasLabs Inc.
-# Copyright 2018 ACSONE SA/NV.
+# Copyright 2020 ACSONE SA/NV.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import api, fields, models, _
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
-class ProductTemplate(models.Model):
-    """To ensure compatibility we keep these fields, but they are useless:
-       they are all overriden at the variant level.
-    """
-    _inherit = 'product.template'
+class ProductProduct(models.Model):
+    """Adds the possibility to override the template contract at variant level."""
+
+    _inherit = "product.product"
 
     is_contract = fields.Boolean('Is a contract')
     property_contract_template_id = fields.Many2one(
-        comodel_name='contract.template',
-        string='Contract Template',
+        comodel_name="contract.template",
+        string="Contract Template",
         company_dependent=True,
     )
     default_qty = fields.Integer(string="Default Quantity", default=1)
@@ -64,3 +62,4 @@ class ProductTemplate(models.Model):
         string='Renewal type',
         help="Specify Interval for automatic renewal.",
     )
+

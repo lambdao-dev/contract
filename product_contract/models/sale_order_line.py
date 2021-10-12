@@ -126,13 +126,8 @@ class SaleOrderLine(models.Model):
 
                 rec.date_end = rec._get_date_end()
                 rec.is_auto_renew = rec.product_id.is_auto_renew
-                if rec.is_auto_renew:
-                    rec.auto_renew_interval = (
-                        rec.product_id.auto_renew_interval
-                    )
-                    rec.auto_renew_rule_type = (
-                        rec.product_id.auto_renew_rule_type
-                    )
+                rec.auto_renew_interval = rec.product_id.auto_renew_interval
+                rec.auto_renew_rule_type = rec.product_id.auto_renew_rule_type
 
     @api.onchange('date_start', 'product_uom_qty', 'recurring_rule_type')
     def onchange_date_start(self):

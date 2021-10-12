@@ -39,6 +39,11 @@ class ProductTemplate(models.Model):
         string='Invoicing type',
         help="Specify if process date is 'from' or 'to' invoicing date",
     )
+    recurring_interval = fields.Integer(  # useless, just to ease the view override...
+        default=1,
+        string='Invoice Every (Interval)',
+        help="Invoice every (Days/Week/Month/Year)",
+    )
     is_auto_renew = fields.Boolean(string="Auto Renew", default=False)
     termination_notice_interval = fields.Integer(
         default=1, string='Termination Notice Before'

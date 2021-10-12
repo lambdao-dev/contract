@@ -31,6 +31,12 @@ class ProductProduct(models.Model):
         string='Invoice Every',
         help="Specify Interval for automatic invoice generation.",
     )
+    recurring_interval = fields.Integer(
+        default=1,
+        string='Invoice Every (Interval)',
+        help="Invoice every (Days/Week/Month/Year)",
+        required=True,
+    )
     recurring_invoicing_type = fields.Selection(
         [('pre-paid', 'Pre-paid'), ('post-paid', 'Post-paid')],
         default='pre-paid',

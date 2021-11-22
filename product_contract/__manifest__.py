@@ -3,8 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    'name': 'Recurring - Product Contract',
-    'version': '12.0.5.2.1',
+    'name': 'Recurring - Product Contract - Variants',
+    'version': '12.0.99.0.0',
     'category': 'Contract Management',
     'license': 'AGPL-3',
     'author': "LasLabs, "

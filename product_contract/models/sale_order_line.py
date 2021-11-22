@@ -35,6 +35,11 @@ class SaleOrderLine(models.Model):
         string='Invoice Every',
         copy=False,
     )
+    recurring_interval = fields.Integer(
+        related="product_id.recurring_interval",
+        string='Invoice Every (Interval)',
+        help="Invoice every (Days/Week/Month/Year)",
+    )
     recurring_invoicing_type = fields.Selection(
         [('pre-paid', 'Pre-paid'), ('post-paid', 'Post-paid')],
         default='pre-paid',
@@ -121,13 +126,8 @@ class SaleOrderLine(models.Model):
 
                 rec.date_end = rec._get_date_end()
                 rec.is_auto_renew = rec.product_id.is_auto_renew
-                if rec.is_auto_renew:
-                    rec.auto_renew_interval = (
-                        rec.product_id.auto_renew_interval
-                    )
-                    rec.auto_renew_rule_type = (
-                        rec.product_id.auto_renew_rule_type
-                    )
+                rec.auto_renew_interval = rec.product_id.auto_renew_interval
+                rec.auto_renew_rule_type = rec.product_id.auto_renew_rule_type
 
     @api.onchange('date_start', 'product_uom_qty', 'recurring_rule_type')
     def onchange_date_start(self):
@@ -167,7 +167,7 @@ class SaleOrderLine(models.Model):
             self.date_start or fields.Date.today(),
             self.recurring_invoicing_type,
             self.recurring_rule_type,
-            1,
+            self.recurring_interval,
         )
         termination_notice_interval = (
             self.product_id.termination_notice_interval
@@ -186,7 +186,7 @@ class SaleOrderLine(models.Model):
             'date_end': self.date_end,
             'date_start': self.date_start or fields.Date.today(),
             'recurring_next_date': recurring_next_date,
-            'recurring_interval': 1,
+            'recurring_interval': self.recurring_interval,
             'recurring_invoicing_type': self.recurring_invoicing_type,
             'recurring_rule_type': self.recurring_rule_type,
             'is_auto_renew': self.is_auto_renew,

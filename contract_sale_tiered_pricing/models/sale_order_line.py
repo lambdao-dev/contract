@@ -108,13 +108,13 @@ class SaleOrderLine(models.Model):
             msg_tmp = _("History = {:.0f}, order of {:.0f} units on pricelist {}.")
             msg_history = msg_tmp.format(cumulated_qty, qty, pricelist.name)
         msg_pl = _(
-            "Your pricelist is based on the principle of tiered pricing to help you "
+            "<p>Your pricelist is based on the principle of tiered pricing to help you "
             "benefit from discounts on volume. The unit price, the total price "
-            "on your order are calculated as follows:"
-            "\nTier - Quantity in tier - Tier price - Value of tier"
+            "on your order are calculated as follows:</p>"
+            '\n<table><thead><tr><th class="text-right">Tier</th><th>Quantity in tier</th><th>Tier price</th><th>Value of tier</th></tr></thead>'
         )
         msg_tiers = self._get_tier_description(qty, cumulated_qty, qps)
-        return "\n".join([msg_history, msg_pl] + msg_tiers)
+        return "\n".join([msg_history, msg_pl] + msg_tiers + ["</table>"])
 
     def _get_tier_description(self, qty, cumulated_qty, qps):
         if (
@@ -125,7 +125,7 @@ class SaleOrderLine(models.Model):
             ratio = self.price_unit / sum(q * p for q, p in qps) * self.product_uom_qty
             qps = [(q, p * round(ratio, 3)) for q, p in qps]
         msg_tiers = []
-        msg_tier = _("Tier#{}: {:.0f} - {:.2f} - {}")
+        msg_tier = _("<tr><td>Tier#{}</td><td>{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>")
         paid = _("PAID")
         for i in range(len(qps)):
             q, p = qps[i]

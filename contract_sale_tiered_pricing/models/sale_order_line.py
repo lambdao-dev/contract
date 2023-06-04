@@ -93,12 +93,15 @@ class SaleOrderLine(models.Model):
         pricelist = self.order_id.pricelist_id
         line = self._get_running_lines(one=True)
         if cumulated_qty:
+            lang_code = self.order_id.partner_id.lang
+            qweb_date = self.env["ir.qweb.field.date"].with_context(lang=lang_code)
             contract_end = line.date_end
             msg_tmp = _(
                 "History = {:.0f} (main contract running until {}), "
                 "new order of {:.0f} units from {} to {} on pricelist {}."
             )
-            start, end = self.date_start, self.date_end
+            start = qweb_date.value_to_html(self.date_start, {})
+            end = qweb_date.value_to_html(self.date_end, {})
             params = [cumulated_qty, contract_end, qty, start, end, pricelist.name]
             msg_history = msg_tmp.format(*params)
         else:

@@ -12,7 +12,8 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
     def test_cumulated_quantity_history(self):
         self.decimal_price.digits = 6  # without this, there would be rounding issues.
         # However it cannot be put in the setup, because it would get the db precision.
-        p = self.decimal_price.precision_get(self.decimal_price.name)  # noqa
+        p = self.decimal_price.precision_get(self.decimal_price.name)
+        self.assertEqual(p, 6)
 
         # when
         first_line_qty = 105
@@ -57,24 +58,26 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
 
     def test_translation(self):
         """It's the same test as in sale_tiered_pricing, but it's not redundant.
-           Because the description is entirely reimplemented in this module,
-           since we need to insert the 'history' information.
-           Here we activate the baguette language, and make the customer a baguette.
-           Thus when we create a new line, the tier description should be translated
-           in baguette.
+        Because the description is entirely reimplemented in this module,
+        since we need to insert the 'history' information.
+        Here we activate the baguette language, and make the customer a baguette.
+        Thus when we create a new line, the tier description should be translated
+        in baguette.
         """
         Langs = self.env["res.lang"].with_context(active_test=False)
         lang = Langs.search([("code", "=", "fr_FR")])
         lang.active = True
         translations = self.env["ir.translation"]
         translations.load_module_terms(["sale_tiered_pricing"], [lang.code])
+        source = "<tr><td>Tier#{}</td><td>{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>"
+        value = "<tr><td>Tranche#{}</td><td>{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>"
         vals_trslt = {
             "name": "addons/contract_sale_tiered_pricing/models/sale_order_line.py",
             "type": "code",
             "module": "sale_tiered_pricing",
             "lang": lang.code,
-            "source": "Tier#{}: {:.0f} - {:.2f} - {}",
-            "value": "Tranche#{}: {:.0f} - {:.2f} - {}",
+            "source": source,
+            "value": value,
             "state": "translated",
         }
         self.env["ir.translation"].create(vals_trslt)
@@ -91,7 +94,7 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
 
     def test_tiered_pricing_discount(self):
         """It's the same test as in sale_tiered_pricing, but it's not redundant.
-           Because the logic is partly reimplemented, it could be broken.
+        Because the logic is partly reimplemented, it could be broken.
         """
         self.product.list_price = 10
         self.tiered_item.tiered_pricelist_id = self.tiered_pricing_discount
@@ -103,9 +106,9 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
             }
         )
         self.assertEqual(new_line.price_subtotal, 100 * 10 + 100 * 8 + 50 * 5)
-        self.assertTrue(" 10" in new_line.name)
-        self.assertTrue(" 8" in new_line.name)
-        self.assertTrue(" 5" in new_line.name)
+        self.assertTrue("<td>10" in new_line.name)
+        self.assertTrue("<td>8" in new_line.name)
+        self.assertTrue("<td>5" in new_line.name)
 
     def test_tiered_pricing_base_with_discount(self):
         """We apply a discount on a basic tiered pricing."""
@@ -120,13 +123,13 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
         # get_missing_defaults would not fill the description correctly.
         self.assertEqual(new_line.price_subtotal, 100 * 5 + 100 * 4 + 50 * 3.5)
         self.assertEqual(new_line.discount, 0)
-        self.assertTrue(" 5" in new_line.name)
-        self.assertTrue(" 4" in new_line.name)
-        self.assertTrue(" 3.5" in new_line.name)
+        self.assertTrue("<td>5" in new_line.name)
+        self.assertTrue("<td>4" in new_line.name)
+        self.assertTrue("<td>3.5" in new_line.name)
 
     def test_tiered_pricing_base_without_discount(self):
         """Discount not included, so we should get the same price, but a different
-           description."""
+        description."""
         self.product.list_price = 10
         self.order.pricelist_id = self.pricelist_formula_tier_based_discount
         self.order.pricelist_id.discount_policy = "without_discount"
@@ -138,9 +141,9 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
                 new_line.product_uom_qty = 250
         self.assertEqual(new_line.price_subtotal, 100 * 5 + 100 * 4 + 50 * 3.5)
         self.assertEqual(new_line.discount, 50)
-        self.assertTrue(" 10" in new_line.name)
-        self.assertTrue(" 8" in new_line.name)
-        self.assertTrue(" 7" in new_line.name)
+        self.assertTrue("<td>10" in new_line.name)
+        self.assertTrue("<td>8" in new_line.name)
+        self.assertTrue("<td>7" in new_line.name)
 
     def test_tiered_pricing_base_with_discount_discount(self):
         """We apply a discount on a discount-based tiered pricing."""
@@ -152,6 +155,6 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
                 new_line.product_id = self.product
                 new_line.product_uom_qty = 250
         self.assertEqual(new_line.price_subtotal, 100 * 5 + 100 * 4 + 50 * 2.5)
-        self.assertTrue(" 5" in new_line.name)
-        self.assertTrue(" 4" in new_line.name)
-        self.assertTrue(" 2.5" in new_line.name)
+        self.assertTrue("<td>5" in new_line.name)
+        self.assertTrue("<td>4" in new_line.name)
+        self.assertTrue("<td>2.5" in new_line.name)

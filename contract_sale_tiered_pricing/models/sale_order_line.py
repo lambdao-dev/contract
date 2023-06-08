@@ -60,7 +60,7 @@ class SaleOrderLine(models.Model):
             uom = line.product_uom
             running_lines = line._get_running_lines()
             if uom:
-                get_qty = lambda l: l.uom_id._compute_quantity(l.quantity, uom)  # noqa
+                get_qty = lambda rl, u=uom: rl.uom_id._compute_quantity(rl.quantity, u)
                 qty = sum(running_lines.mapped(get_qty))
             else:
                 qty = sum(running_lines.mapped("quantity"))
@@ -69,8 +69,7 @@ class SaleOrderLine(models.Model):
             line.contract_cumulated_qty = 0
 
     def get_sale_order_line_multiline_description_sale(self, product):
-        """Enrich the description with the tier computation.
-        """
+        """Enrich the description with the tier computation."""
         skip_tier_description = self.env.context.get("skip_tier_description")
         if self.is_tier_priced and self.product_uom_qty and not skip_tier_description:
             context = {"lang": self.order_id.partner_id.lang}
@@ -84,9 +83,7 @@ class SaleOrderLine(models.Model):
             desc = self_trnslt._get_tiered_pricing_description(qty, cumulated_qty, qps)
             res = "\n".join([res, desc])
         else:
-            res = super(
-                SaleOrderLine, self
-            ).get_sale_order_line_multiline_description_sale(product)
+            res = super().get_sale_order_line_multiline_description_sale(product)
         return res
 
     def _get_tiered_pricing_description(self, qty, cumulated_qty, qps):
@@ -111,7 +108,9 @@ class SaleOrderLine(models.Model):
             "<p>Your pricelist is based on the principle of tiered pricing to help you "
             "benefit from discounts on volume. The unit price, the total price "
             "on your order are calculated as follows:</p>"
-            '\n<table><thead><tr><th class="text-right">Tier</th><th>Quantity in tier</th><th>Tier price</th><th>Value of tier</th></tr></thead>'
+            '\n<table><thead><tr><th class="text-right">Tier</th>'
+            '<th class="text-right">Quantity in tier</th><th>Tier price</th>'
+            "<th>Value of tier</th></tr></thead>"
         )
         msg_tiers = self._get_tier_description(qty, cumulated_qty, qps)
         return "\n".join([msg_history, msg_pl] + msg_tiers + ["</table>"])
@@ -125,10 +124,11 @@ class SaleOrderLine(models.Model):
             ratio = self.price_unit / sum(q * p for q, p in qps) * self.product_uom_qty
             qps = [(q, p * round(ratio, 3)) for q, p in qps]
         msg_tiers = []
-        msg_tier = _("<tr><td>Tier#{}</td><td>{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>")
+        msg_tier = _(
+            '<tr><td>Tier#{}</td><td class="text-right">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>'
+        )
         paid = _("PAID")
-        for i in range(len(qps)):
-            q, p = qps[i]
+        for i, (q, p) in enumerate(qps):
             already_paid = cumulated_qty >= q
             if already_paid:
                 cumulated_qty = cumulated_qty - q
@@ -146,12 +146,12 @@ class SaleOrderLine(models.Model):
             ccq = self.contract_cumulated_qty
             qty = self.product_uom_qty
             product_ccq = product.with_context(quantity=ccq)
-            ccq_price = super(SaleOrderLine, self)._get_display_price(product_ccq)
+            ccq_price = super()._get_display_price(product_ccq)
             product.invalidate_cache(fnames=["price"], ids=product.ids)
             product_total = product.with_context(quantity=ccq + qty)
             product.tiered_qps = product_total.tiered_qps
-            total_price = super(SaleOrderLine, self)._get_display_price(product_total)
+            total_price = super()._get_display_price(product_total)
             price = ((total_price * (ccq + qty)) - (ccq * ccq_price)) / qty
         else:
-            price = super(SaleOrderLine, self)._get_display_price(product)
+            price = super()._get_display_price(product)
         return price

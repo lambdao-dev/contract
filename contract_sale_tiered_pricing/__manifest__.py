@@ -10,7 +10,7 @@
     "license": "AGPL-3",
     "author": "ACSONE SA/NV,Odoo Community Association (OCA)",
     "website": "https://acsone.eu",
-    "depends": ["sale_tiered_pricing", "product_contract"],
+    "depends": ["sale_tiered_pricing", "product_contract", "sale_html"],
     "data": [
         "data/sale_order_actions.xml",
         "views/sale_order.xml",

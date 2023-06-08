@@ -69,8 +69,8 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
         lang.active = True
         translations = self.env["ir.translation"]
         translations.load_module_terms(["sale_tiered_pricing"], [lang.code])
-        source = "<tr><td>Tier#{}</td><td>{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>"
-        value = "<tr><td>Tranche#{}</td><td>{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>"
+        source = '<tr><td>Tier#{}</td><td class="text-right">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>'
+        value = '<tr><td>Tranche#{}</td><td class="text-right">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>'
         vals_trslt = {
             "name": "addons/contract_sale_tiered_pricing/models/sale_order_line.py",
             "type": "code",
@@ -158,3 +158,60 @@ class TestContractTieredPricingFlow(TestContractTieredPricing):
         self.assertTrue("<td>5" in new_line.name)
         self.assertTrue("<td>4" in new_line.name)
         self.assertTrue("<td>2.5" in new_line.name)
+
+    def test_cumulated_quantity_history_with_discount(self):
+        self.decimal_price.digits = 6
+        p = self.decimal_price.precision_get(self.decimal_price.name)
+        self.assertEqual(p, 6)
+
+        self.product.list_price = 10
+        self.tiered_item.tiered_pricelist_id = self.tiered_pricing_discount
+        self.order.pricelist_id = self.pricelist_formula_tier_based_discount
+        first_line_qty = 105
+        with Form(self.order) as so:
+            with so.order_line.new() as first_line:
+                first_line.product_id = self.product
+                first_line.product_uom_qty = first_line_qty
+
+        # then
+        first_line = self.order.order_line[0]
+        self.assertEqual(first_line.contract_cumulated_qty, 0)
+        self.assertTrue("History = 0" in first_line.name)
+        # Discount (.5) * the same as in first test
+        self.assertEqual(first_line.price_subtotal, .5 * (10 * 100 + 5 * 8))
+
+        # given
+        self.order.action_confirm()
+        # let's cheat a bit, but the test would be less interesting without this
+        domain_contract_line = [("sale_order_line_id", "=", first_line.id)]
+        contract_line = self.env["contract.line"].search(domain_contract_line)
+        contract_line.quantity = first_line_qty
+
+        # when
+        vals_new_order = {
+            "pricelist_id": self.pricelist_formula_tier_based_discount.id,
+            "partner_id": self.partner.id,
+        }
+        new_order = self.order.create(vals_new_order)
+        with Form(new_order) as so:
+            with so.order_line.new() as line:
+                line.product_id = self.product
+                line.product_uom_qty = 100
+        second_line = new_order.order_line
+
+        # then
+        self.assertEqual(second_line.contract_cumulated_qty, first_line_qty)
+        # once again, .5 discount is applied
+        self.assertEqual(second_line.price_subtotal, .5 * (95 * 8 + 5 * 5))
+        self.assertTrue("History = {}".format(first_line_qty) in second_line.name)
+        self.assertEqual(len(re.findall("Tier#1.*PAID", second_line.name)), 1)
+        self.assertEqual(len(re.findall("Tier#1", second_line.name)), 1)
+        self.assertEqual(len(re.findall("Tier#2.*PAID", second_line.name)), 1)
+        self.assertEqual(len(re.findall("Tier#2", second_line.name)), 2)
+        # our main interest is the tier description with cumulated quantity + discount
+        desc = second_line.name_txt
+        self.assertEqual(len(re.findall("Tier#1 \| 100 \| 5.00", desc)), 1)
+        self.assertEqual(len(re.findall("Tier#2 \| 5 \| 4.00 \| PAID", desc)), 1)
+        self.assertEqual(len(re.findall("Tier#2 \| 95 \| 4.00 \| 380.00", desc)), 1)
+        self.assertEqual(len(re.findall("Tier#3 \| 5 \| 2.50 \| 12.50", desc)), 1)
+

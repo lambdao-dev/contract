@@ -115,13 +115,30 @@ class SaleOrderLine(models.Model):
         msg_tiers = self._get_tier_description(qty, cumulated_qty, qps)
         return "\n".join([msg_history, msg_pl] + msg_tiers + ["</table>"])
 
+    def _get_tier_sum_from_qps(self, cumulated_qty, qps):
+        """To get the discount, we have to remove all the tiers that are
+        already covered by the cumulated_qty."""
+        new_qps = []
+        acc = cumulated_qty
+        for q, p in qps:
+            if acc == 0:
+                new_qps.append((q, p))
+            else:
+                if acc >= q:
+                    acc = acc - q
+                else:
+                    new_qps.append((q - acc, p))
+                    acc = 0
+        return sum(q * p for q, p in new_qps)
+
     def _get_tier_description(self, qty, cumulated_qty, qps):
         if (
             self.price_unit
             and sum(q * p for q, p in qps)
             and self.order_id.pricelist_id.discount_policy == "with_discount"
         ):
-            ratio = self.price_unit / sum(q * p for q, p in qps) * self.product_uom_qty
+            sum_price = self._get_tier_sum_from_qps(cumulated_qty, qps)
+            ratio = self.price_unit / sum_price * self.product_uom_qty
             qps = [(q, p * round(ratio, 3)) for q, p in qps]
         msg_tiers = []
         msg_tier = _(

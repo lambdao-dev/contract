@@ -81,10 +81,27 @@ class SaleOrderLine(models.Model):
             qps = product.tiered_qps
             self_trnslt = self.with_context(**context)
             desc = self_trnslt._get_tiered_pricing_description(qty, cumulated_qty, qps)
-            res = "\n".join([res, desc])
+            base = self._get_base_price_description(product)
+            res = "\n".join([res, base, desc])
         else:
             res = super().get_sale_order_line_multiline_description_sale(product)
         return res
+
+    def _get_base_price_description(self, product):
+        pricelist = self.order_id.pricelist_id
+        msg = _("The standard price is {}{} (tax excluded){}.")
+        p = product
+        msg_period = ""
+        if p.is_contract and p.recurring_rule_type and p.recurring_interval:
+            period = p.recurring_rule_type
+            period_str = p._fields["recurring_rule_type"].convert_to_export(period, p)
+            if p.recurring_interval > 1:
+                period_str = " ".join([str(p.recurring_interval), period_str])
+            msg_period = " ".join([" ", _("per"), period_str])
+        price = pricelist.get_product_price(product, 1, self.order_id.partner_id)
+        price_msg = "{:.0f}" if price.is_integer() else "{:.2f}"
+        cur = self.order_id.currency_id.name
+        return msg.format(price_msg.format(price), cur, msg_period)
 
     def _get_tiered_pricing_description(self, qty, cumulated_qty, qps):
         pricelist = self.order_id.pricelist_id

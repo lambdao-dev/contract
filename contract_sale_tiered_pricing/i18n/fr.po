@@ -1,41 +1,32 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* contract_sale_tiered_pricing
+#	* contract_sale_tiered_pricing
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 12.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-04 16:25+0000\n"
-"PO-Revision-Date: 2023-06-04 16:25+0000\n"
+"POT-Creation-Date: 2023-06-28 18:36+0000\n"
+"PO-Revision-Date: 2023-06-28 18:36+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
 #. module: contract_sale_tiered_pricing
-#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:107
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:124
 #, python-format
-msgid ""
-"<p>Your pricelist is based on the principle of tiered pricing to help you "
-"benefit from discounts on volume. The unit price, the total price on your "
-"order are calculated as follows:</p>\n"
-"<table><thead><tr><th class=\"text-right\">Tier</th><th class=\"text-"
-"right\">Quantity in tier</th><th>Tier price</th><th>Value of tier</th></tr></"
-"thead>"
-msgstr ""
-"<table><thead><tr><th class=\"text-right\">Palier</th><th class=\"text-"
-"right\">Quantité dans le palier</th><th>Prix du palier</th><th>Valeur du "
-"palier</th></tr></thead>"
+msgid "<p>Your pricelist is based on the principle of tiered pricing to help you benefit from discounts on volume. The unit price, the total price on your order are calculated as follows:</p>\n"
+"<table><thead><tr><th class=\"text-right\">Tier</th><th class=\"text-right\">Quantity in tier</th><th>Tier price</th><th>Value of tier</th></tr></thead>"
+msgstr "<table><thead><tr><th class=\"text-right\">Palier</th><th class=\"text-right\">Quantité dans le palier</th><th>Prix du palier</th><th>Valeur du palier</th></tr></thead>"
 
 #. module: contract_sale_tiered_pricing
-#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:127
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:165
 #, python-format
-msgid '<tr><td>Tier#{}</td><td class="text-right">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>'
-msgstr '<tr><td>Tranche#{}</td><td class="text-right">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>'
+msgid "<tr><td>Tier#{}</td><td class=\"text-right\">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>"
+msgstr "<tr><td>Tranche#{}</td><td class=\"text-right\">{:.0f}</td><td>{:.2f}</td><td>{}</td></tr>"
 
 #. module: contract_sale_tiered_pricing
 #: model:ir.model.fields,field_description:contract_sale_tiered_pricing.field_sale_order_line__contract_cumulated_qty
@@ -48,26 +39,19 @@ msgid "History"
 msgstr "Historique"
 
 #. module: contract_sale_tiered_pricing
-#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:96
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:113
 #, python-format
-msgid ""
-"History = {:.0f} (main contract running until {}), new order of {:.0f} units "
-"from {} to {} on pricelist {}."
-msgstr ""
-"Votre abonnement en cours contient {:.0f} licences (le contrat parent expire "
-"le {}), cette nouvelle commande pour {:.0f} licences court du {} au {} selon "
-"la grille tarifaire {}."
+msgid "History = {:.0f} (main contract running until {}), new order of {:.0f} units from {} to {} on pricelist {}."
+msgstr "Votre abonnement en cours contient {:.0f} licences (le contrat parent expire le {}), cette nouvelle commande pour {:.0f} licences court du {} au {} selon la grille tarifaire {}."
 
 #. module: contract_sale_tiered_pricing
-#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:105
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:122
 #, python-format
 msgid "History = {:.0f}, order of {:.0f} units on pricelist {}."
-msgstr ""
-"Votre abonnement en cours contient {:.0f} licences, commande pour {:.0f} "
-"licences selon la grille tarifaire {}."
+msgstr "Votre abonnement en cours contient {:.0f} licences, commande pour {:.0f} licences selon la grille tarifaire {}."
 
 #. module: contract_sale_tiered_pricing
-#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:130
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:168
 #, python-format
 msgid "PAID"
 msgstr "Payé"
@@ -88,7 +72,19 @@ msgid "Sales Order Line"
 msgstr "Ligne de bons de commande"
 
 #. module: contract_sale_tiered_pricing
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:92
+#, python-format
+msgid "The standard price is {}{} (tax excluded){}."
+msgstr "Le prix standard est de {}{}HT{}."
+
+#. module: contract_sale_tiered_pricing
 #: model:ir.model.fields,help:contract_sale_tiered_pricing.field_sale_order_line__contract_cumulated_qty
 msgid "This takes into account all products with a running contract line"
-msgstr ""
-"Cela prend en compte tous les produits avec une ligne de contrat en cours."
+msgstr "Cela prend en compte tous les produits avec une ligne de contrat en cours."
+
+#. module: contract_sale_tiered_pricing
+#: code:addons/contract_sale_tiered_pricing/models/sale_order_line.py:100
+#, python-format
+msgid "per"
+msgstr "par"
+

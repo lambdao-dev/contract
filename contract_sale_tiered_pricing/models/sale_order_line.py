@@ -92,7 +92,7 @@ class SaleOrderLine(models.Model):
         if cumulated_qty:
             lang_code = self.order_id.partner_id.lang
             qweb_date = self.env["ir.qweb.field.date"].with_context(lang=lang_code)
-            contract_end = line.date_end
+            contract_end = qweb_date.value_to_html(line.date_end, {})
             msg_tmp = _(
                 "History = {:.0f} (main contract running until {}), "
                 "new order of {:.0f} units from {} to {} on pricelist {}."

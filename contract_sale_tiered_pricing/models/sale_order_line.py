@@ -20,17 +20,20 @@ class SaleOrderLine(models.Model):
         copy=False,
     )
 
-    def _get_running_lines(self, one=False):
-        self.ensure_one()
+    def _get_running_lines_domain(self):
         partner_id = self.order_id.partner_id.commercial_partner_id.id
-        domain_lines = [
-            ("product_id", "=", self.product_id.id),
+        return [
             ("contract_id.partner_id", "child_of", partner_id),
+            ("product_id", "=", self.product_id.id),
             ("date_start", "<=", self.date_start),
             ("date_end", ">=", self.date_end),
             ("is_canceled", "=", False),
         ]
-        return self.env["contract.line"].search(domain_lines, limit=1 if one else None)
+
+    def _get_running_lines(self, one=False):
+        self.ensure_one()
+        domain = self._get_running_lines_domain()
+        return self.env["contract.line"].search(domain, limit=1 if one else None)
 
     def recompute_price_and_description(self):
         for line in self:
